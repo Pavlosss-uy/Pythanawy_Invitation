@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pythonawy — نادي البرمجة الصيفي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1a1033;
+    --bg-2: #2d1b5e;
+    --pink: #ff2d87;
+    --yellow: #ffd23f;
+    --cyan: #00e5ff;
+    --green: #6bff5c;
+    --orange: #ff8c42;
+    --white: #fff8e7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    color: var(--white);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background:
+      radial-gradient(circle at 20% 30%, rgba(255,45,135,0.25), transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(0,229,255,0.2), transparent 50%),
+      radial-gradient(circle at 50% 50%, var(--bg-2), var(--bg));
+    position: relative;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 1;
+    overflow-y: auto;
+  }
+  .screen.active { display: flex; }
+
+  /* ---------- WELCOME ---------- */
+  .arcade-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(36px, 9vw, 76px);
+    line-height: 1.2;
+    text-align: center;
+    margin-bottom: 12px;
+    color: var(--yellow);
+    text-shadow:
+      3px 3px 0 var(--pink),
+      6px 6px 0 var(--cyan),
+      9px 9px 30px rgba(0,0,0,0.6);
+    animation: titleBounce 2s ease-in-out infinite;
+    letter-spacing: 2px;
+    direction: ltr;
+  }
+  @keyframes titleBounce {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-8px) rotate(1deg); }
+  }
+  .subtitle {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 800;
+    font-size: clamp(14px, 3vw, 20px);
+    color: var(--cyan);
+    letter-spacing: 1px;
+    margin-bottom: 40px;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  }
+  .name-box {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 32px 28px;
+    box-shadow:
+      0 0 0 4px var(--bg-2),
+      0 0 0 8px var(--yellow),
+      12px 12px 0 var(--pink),
+      0 20px 60px rgba(0,0,0,0.5);
+    max-width: 440px;
+    width: 100%;
+    transform: rotate(-1deg);
+  }
+  .name-box h2 {
+    color: var(--bg);
+    font-size: clamp(22px, 4.5vw, 30px);
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .name-box p {
+    color: #555;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 17px;
+    font-weight: 500;
+  }
+  #name-input {
+    width: 100%;
+    padding: 16px 20px;
+    border: 3px solid var(--bg);
+    border-radius: 14px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    outline: none;
+    background: #fff;
+    color: var(--bg);
+    text-align: center;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  #name-input:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--cyan);
+  }
+  .btn {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 16px 32px;
+    background: var(--pink);
+    color: var(--white);
+    border: 4px solid var(--bg);
+    border-radius: 14px;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: 0 6px 0 var(--bg-2);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--bg-2); }
+  .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--bg-2); }
+  .btn-full { width: 100%; }
+  .btn-green { background: var(--green); color: var(--bg); }
+  .btn-yellow { background: var(--yellow); color: var(--bg); }
+
+  .floater {
+    position: absolute;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 22px;
+    opacity: 0.5;
+    animation: float 6s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-30px) rotate(10deg); }
+  }
+
+  /* ---------- GAME (Whack-a-Bug) ---------- */
+  #game-screen { padding: 16px; }
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 540px;
+    margin-bottom: 14px;
+    gap: 8px;
+  }
+  .hud-box {
+    background: var(--bg-2);
+    border: 3px solid var(--yellow);
+    border-radius: 12px;
+    padding: 10px 14px;
+    box-shadow: 4px 4px 0 var(--pink);
+    text-align: center;
+    flex: 1;
+  }
+  .hud-box .label {
+    color: var(--cyan);
+    font-size: 12px;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .hud-box .value {
+    color: var(--yellow);
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(14px, 3vw, 18px);
+  }
+
+  #game-area {
+    width: 100%;
+    max-width: 540px;
+    background: rgba(0,0,0,0.3);
+    border: 4px solid var(--cyan);
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow:
+      inset 0 0 40px rgba(0,229,255,0.15),
+      8px 8px 0 var(--pink);
+    position: relative;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .hole {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background: radial-gradient(ellipse at center, #0a0520 0%, #1a1033 70%);
+    border-radius: 50%;
+    box-shadow:
+      inset 0 8px 20px rgba(0,0,0,0.8),
+      inset 0 -4px 8px rgba(255,255,255,0.05);
+    cursor: pointer;
+    overflow: hidden;
+    border: 3px solid var(--bg-2);
+  }
+  .bug {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(36px, 10vw, 64px);
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+  }
+  .bug.up { transform: translateY(0); }
+  .bug.squashed {
+    animation: squash 0.35s ease-out forwards;
+  }
+  @keyframes squash {
+    0% { transform: translateY(0) scale(1); }
+    40% { transform: translateY(0) scale(1.4, 0.6); }
+    100% { transform: translateY(0) scale(0, 0); opacity: 0; }
+  }
+  .hole:active { transform: scale(0.96); }
+  .hit-popup {
+    position: absolute;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 16px;
+    color: var(--green);
+    font-weight: 700;
+    pointer-events: none;
+    animation: hitFloat 0.8s ease-out forwards;
+    z-index: 5;
+    text-shadow: 2px 2px 0 var(--bg);
+  }
+  @keyframes hitFloat {
+    0% { transform: translateY(0) scale(0.5); opacity: 1; }
+    100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
+  }
+
+  .encouragement {
+    margin-top: 14px;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 800;
+    font-size: clamp(14px, 3vw, 18px);
+    color: var(--green);
+    text-align: center;
+    min-height: 24px;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  }
+
+  .countdown {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.7);
+    z-index: 10;
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(60px, 15vw, 120px);
+    color: var(--yellow);
+    text-shadow: 4px 4px 0 var(--pink);
+    border-radius: 14px;
+    animation: countPulse 1s ease-out;
+  }
+  @keyframes countPulse {
+    0% { transform: scale(2); opacity: 0; }
+    50% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* ---------- PITCH ---------- */
+  .pitch-card {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 44px 32px 32px;
+    max-width: 520px;
+    width: 100%;
+    text-align: center;
+    box-shadow:
+      0 0 0 4px var(--bg-2),
+      0 0 0 8px var(--yellow),
+      12px 12px 0 var(--pink),
+      0 20px 60px rgba(0,0,0,0.5);
+    transform: rotate(0.5deg);
+    color: var(--bg);
+    position: relative;
+  }
+  .pitch-card .badge {
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    background: var(--pink);
+    color: var(--white);
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    border: 3px solid var(--bg);
+    box-shadow: 3px 3px 0 var(--bg);
+    white-space: nowrap;
+  }
+  .pitch-card h2 {
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 900;
+    margin: 16px 0 12px;
+    line-height: 1.4;
+  }
+  .highlight {
+    background: var(--yellow);
+    padding: 0 10px;
+    border-radius: 6px;
+    display: inline-block;
+    transform: rotate(-2deg);
+  }
+  .pitch-card p {
+    font-size: 17px;
+    color: #444;
+    margin-bottom: 24px;
+    line-height: 1.6;
+    font-weight: 500;
+  }
+  .yn-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    position: relative;
+    min-height: 70px;
+    align-items: center;
+  }
+  .btn-yes {
+    background: var(--green);
+    color: var(--bg);
+    padding: 18px 40px;
+    font-size: 18px;
+  }
+  .btn-no {
+    background: #ff5252;
+    color: var(--white);
+    padding: 18px 40px;
+    font-size: 18px;
+    position: relative;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* ---------- CELEBRATE ---------- */
+  .celebrate-card {
+    text-align: center;
+    max-width: 600px;
+    width: 100%;
+  }
+  .celebrate-emoji {
+    font-size: clamp(80px, 18vw, 140px);
+    animation: party 0.6s ease-in-out infinite alternate;
+    display: inline-block;
+  }
+  @keyframes party {
+    0% { transform: rotate(-15deg) scale(1); }
+    100% { transform: rotate(15deg) scale(1.1); }
+  }
+  .celebrate-card h1 {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 900;
+    font-size: clamp(26px, 6vw, 42px);
+    color: var(--yellow);
+    margin: 20px 0;
+    text-shadow: 4px 4px 0 var(--pink), 8px 8px 30px rgba(0,0,0,0.5);
+    line-height: 1.4;
+  }
+  .celebrate-card .lead {
+    font-size: clamp(17px, 3vw, 21px);
+    margin-bottom: 24px;
+    color: var(--white);
+    font-weight: 600;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+    max-width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .info-tile {
+    background: var(--bg-2);
+    border: 3px solid var(--cyan);
+    border-radius: 14px;
+    padding: 16px 12px;
+    box-shadow: 4px 4px 0 var(--pink);
+  }
+  .info-tile .ico { font-size: 32px; margin-bottom: 6px; }
+  .info-tile .ttl {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--cyan);
+    margin-bottom: 6px;
+  }
+  .info-tile .txt {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--yellow);
+    line-height: 1.4;
+  }
+
+  .carousel-section {
+    margin-top: 32px;
+    width: 100%;
+    max-width: 600px;
+  }
+  .carousel-title {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 900;
+    font-size: clamp(16px, 3vw, 20px);
+    color: var(--cyan);
+    text-align: center;
+    margin-bottom: 16px;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  }
+  .carousel {
+    position: relative;
+    border: 4px solid var(--yellow);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--bg-2);
+    box-shadow: 6px 6px 0 var(--pink);
+    aspect-ratio: 16 / 10;
+  }
+  .slides {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+    height: 100%;
+    direction: ltr;
+  }
+  .slide {
+    min-width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    color: var(--white);
+    font-weight: 700;
+    font-size: 18px;
+    text-align: center;
+    padding: 20px;
+  }
+  .slide-1 { background: linear-gradient(135deg, #ff2d87, #ff8c42); }
+  .slide-2 { background: linear-gradient(135deg, #00e5ff, #6bff5c); }
+  .slide-3 { background: linear-gradient(135deg, #ffd23f, #ff2d87); }
+  .slide-4 { background: linear-gradient(135deg, #6bff5c, #00e5ff); }
+  .slide img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+  .slide-caption {
+    position: relative;
+    z-index: 2;
+    background: rgba(0,0,0,0.55);
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 800;
+    font-size: clamp(13px, 2.4vw, 16px);
+    direction: rtl;
+  }
+  .carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--white);
+    color: var(--bg);
+    border: 3px solid var(--bg);
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    font-size: 24px;
+    font-weight: 900;
+    cursor: pointer;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 3px 3px 0 var(--pink);
+    font-family: 'Cairo', sans-serif;
+  }
+  .carousel-btn:active { transform: translateY(-50%) scale(0.92); }
+  .carousel-btn.prev { right: 12px; }
+  .carousel-btn.next { left: 12px; }
+  .dots { display: flex; justify-content: center; gap: 8px; margin-top: 14px; }
+  .dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--bg-2);
+    border: 2px solid var(--yellow);
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .dot.active { background: var(--pink); transform: scale(1.3); }
+
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  @media (max-width: 480px) {
+    .yn-row { flex-direction: column; gap: 10px; }
+    .btn-no, .btn-yes { width: 100%; }
+    .pitch-card { padding: 40px 20px 24px; }
+    .name-box { padding: 24px 20px; }
+    .grid { gap: 8px; }
+    .hud-box { padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ WELCOME ============ -->
+<div id="welcome-screen" class="screen active">
+  <div class="floater" style="top: 10%; right: 8%;">{ }</div>
+  <div class="floater" style="top: 15%; left: 10%; animation-delay: 1s;">&lt;/&gt;</div>
+  <div class="floater" style="bottom: 20%; right: 12%; animation-delay: 2s;">🚀</div>
+  <div class="floater" style="bottom: 15%; left: 8%; animation-delay: 3s;">⚡</div>
+  <div class="floater" style="top: 50%; right: 4%; animation-delay: 1.5s;">🎮</div>
+  <div class="floater" style="top: 40%; left: 4%; animation-delay: 2.5s;">★</div>
+
+  <h1 class="arcade-title">PYTHONAWY</h1>
+  <p class="subtitle">▸ نادي البرمجة الصيفي ◂</p>
+
+  <div class="name-box">
+    <h2>أهلاً يا مبرمج المستقبل! 👋</h2>
+    <p>إيه اسمك؟</p>
+    <input type="text" id="name-input" placeholder="اكتب اسمك هنا..." maxlength="20" autocomplete="off">
+    <button class="btn btn-full" onclick="startGame()">يلا نبدأ ◂</button>
+  </div>
+</div>
+
+<!-- ============ GAME ============ -->
+<div id="game-screen" class="screen">
+  <div class="hud">
+    <div class="hud-box"><span class="label">اللاعب</span><span class="value" id="hud-name">YOU</span></div>
+    <div class="hud-box"><span class="label">النقط</span><span class="value" id="hud-score">0</span></div>
+    <div class="hud-box"><span class="label">الوقت</span><span class="value" id="hud-time">20</span></div>
+  </div>
+  <div id="game-area">
+    <div class="grid" id="grid"></div>
+    <div class="countdown" id="countdown">3</div>
+  </div>
+  <div class="encouragement" id="encouragement">اضرب الباجز قبل ما تهرب! 🐛</div>
+</div>
+
+<!-- ============ PITCH ============ -->
+<div id="pitch-screen" class="screen">
+  <div class="pitch-card">
+    <div class="badge">⭐ لعبة جامدة! ⭐</div>
+    <h2>عايز تعمل <span class="highlight">ألعاب زي دي</span> بنفسك؟</h2>
+    <p id="pitch-text">تعالى انضم لنا الصيف ده وهتتعلم تعمل مواقع وألعاب وحاجات حلوة بالكود! 🚀</p>
+    <div class="yn-row">
+      <button class="btn btn-yes" onclick="goCelebrate()">أيوه! 🎉</button>
+      <button class="btn btn-no" id="no-btn">لأ شكراً</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CELEBRATE ============ -->
+<div id="celebrate-screen" class="screen">
+  <div class="celebrate-card">
+    <span class="celebrate-emoji">🎉</span>
+    <h1 id="celebrate-title">أهلاً بيك معانا!</h1>
+    <p class="lead">هتنبسط جداً! ده اللي مستنيك:</p>
+
+    <div class="info-grid">
+      <div class="info-tile">
+        <div class="ico">📅</div>
+        <div class="ttl">إمتى</div>
+        <div class="txt">كل أسبوع<br>طول الصيف</div>
+      </div>
+      <div class="info-tile">
+        <div class="ico">💻</div>
+        <div class="ttl">إيه</div>
+        <div class="txt">كود وألعاب<br>ومواقع</div>
+      </div>
+    </div>
+
+    <div class="carousel-section">
+      <div class="carousel-title">▸ من الصيف اللي فات ◂</div>
+      <div class="carousel">
+        <button class="carousel-btn prev" onclick="moveSlide(-1)">›</button>
+        <button class="carousel-btn next" onclick="moveSlide(1)">‹</button>
+        <div class="slides" id="slides">
+          <!-- استبدل بصور حقيقية: <img src="photo1.jpg" alt=""> -->
+          <div class="slide slide-1"><span class="slide-caption">📸 صورة ١<br>(غيّرني)</span></div>
+          <div class="slide slide-2"><span class="slide-caption">📸 صورة ٢<br>(غيّرني)</span></div>
+          <div class="slide slide-3"><span class="slide-caption">📸 صورة ٣<br>(غيّرني)</span></div>
+          <div class="slide slide-4"><span class="slide-caption">📸 صورة ٤<br>(غيّرني)</span></div>
+        </div>
+      </div>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <button class="btn btn-yellow" style="margin-top: 28px;" onclick="resetAll()">↻ العب تاني</button>
+  </div>
+</div>
+
+<script>
+  let playerName = 'بطل';
+  let score = 0;
+  let timeLeft = 20;
+  let gameTimer = null;
+  let spawnTimer = null;
+  let gameActive = false;
+
+  const BUGS = ['🐛', '🐞', '🦟', '🪲', '🕷️', '🦗'];
+  const PRAISE = ['برافو', 'جامد', 'تحفة', 'هايل', 'كده يا بطل', 'ولا أحلى', 'رهيب', 'يا واد يا أسطورة'];
+
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // Build the 3x3 grid of holes
+  function buildGrid() {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    for (let i = 0; i < 9; i++) {
+      const hole = document.createElement('div');
+      hole.className = 'hole';
+      hole.dataset.index = i;
+      const bug = document.createElement('div');
+      bug.className = 'bug';
+      bug.dataset.active = 'false';
+      hole.appendChild(bug);
+
+      const hit = () => {
+        if (!gameActive) return;
+        if (bug.dataset.active === 'true' && !bug.classList.contains('squashed')) {
+          squashBug(hole, bug);
+        }
+      };
+      hole.addEventListener('click', hit);
+      hole.addEventListener('touchstart', (e) => { e.preventDefault(); hit(); }, { passive: false });
+
+      grid.appendChild(hole);
+    }
+  }
+  buildGrid();
+
+  function startGame() {
+    const input = document.getElementById('name-input');
+    const name = input.value.trim();
+    if (!name) {
+      input.style.borderColor = 'var(--pink)';
+      input.placeholder = 'اكتب اسمك الأول!';
+      input.focus();
+      return;
+    }
+    playerName = name.split(' ')[0];
+    document.getElementById('hud-name').textContent = playerName.slice(0, 10);
+    show('game-screen');
+    runCountdown();
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && document.getElementById('welcome-screen').classList.contains('active')) {
+      startGame();
+    }
+  });
+
+  function runCountdown() {
+    const el = document.getElementById('countdown');
+    el.style.display = 'flex';
+    let n = 3;
+    el.textContent = n;
+    const t = setInterval(() => {
+      n--;
+      if (n > 0) {
+        el.textContent = n;
+        el.style.animation = 'none';
+        void el.offsetWidth;
+        el.style.animation = 'countPulse 1s ease-out';
+      } else if (n === 0) {
+        el.textContent = 'يلا!';
+        el.style.animation = 'none';
+        void el.offsetWidth;
+        el.style.animation = 'countPulse 1s ease-out';
+      } else {
+        clearInterval(t);
+        el.style.display = 'none';
+        beginPlay();
+      }
+    }, 1000);
+  }
+
+  function beginPlay() {
+    score = 0;
+    timeLeft = 20;
+    document.getElementById('hud-score').textContent = '0';
+    document.getElementById('hud-time').textContent = '20';
+    gameActive = true;
+    setEncouragement(`يلا يا ${playerName}! اضرب الباجز! 🔨`);
+
+    gameTimer = setInterval(() => {
+      timeLeft--;
+      document.getElementById('hud-time').textContent = timeLeft;
+      if (timeLeft === 15) restartSpawn(700);
+      if (timeLeft === 10) restartSpawn(550);
+      if (timeLeft === 5) restartSpawn(420);
+      if (timeLeft <= 0) endGame();
+    }, 1000);
+
+    restartSpawn(850);
+    setTimeout(popRandomBug, 300);
+  }
+
+  function restartSpawn(interval) {
+    if (spawnTimer) clearInterval(spawnTimer);
+    spawnTimer = setInterval(popRandomBug, interval);
+  }
+
+  function popRandomBug() {
+    if (!gameActive) return;
+    const holes = document.querySelectorAll('.hole');
+    const available = Array.from(holes).filter(h => h.querySelector('.bug').dataset.active === 'false');
+    if (available.length === 0) return;
+    const hole = available[Math.floor(Math.random() * available.length)];
+    const bug = hole.querySelector('.bug');
+    bug.textContent = BUGS[Math.floor(Math.random() * BUGS.length)];
+    bug.classList.remove('squashed');
+    bug.dataset.active = 'true';
+    requestAnimationFrame(() => bug.classList.add('up'));
+
+    const stayTime = 1000 + Math.random() * 600;
+    setTimeout(() => {
+      if (bug.dataset.active === 'true' && !bug.classList.contains('squashed')) {
+        bug.classList.remove('up');
+        bug.dataset.active = 'false';
+      }
+    }, stayTime);
+  }
+
+  function squashBug(hole, bug) {
+    bug.classList.add('squashed');
+    bug.dataset.active = 'false';
+    score++;
+    document.getElementById('hud-score').textContent = score;
+
+    const plus = document.createElement('div');
+    plus.className = 'hit-popup';
+    plus.textContent = '+1';
+    plus.style.top = '20%';
+    plus.style.left = '50%';
+    plus.style.transform = 'translateX(-50%)';
+    hole.appendChild(plus);
+    setTimeout(() => plus.remove(), 800);
+
+    setTimeout(() => {
+      bug.classList.remove('up', 'squashed');
+      bug.style.transform = '';
+    }, 350);
+
+    if (score % 5 === 0) {
+      const praise = PRAISE[Math.floor(Math.random() * PRAISE.length)];
+      setEncouragement(`${praise} يا ${playerName}! 🔥`);
+    }
+  }
+
+  function setEncouragement(msg) {
+    document.getElementById('encouragement').textContent = msg;
+  }
+
+  function endGame() {
+    gameActive = false;
+    clearInterval(gameTimer);
+    clearInterval(spawnTimer);
+    document.querySelectorAll('.bug').forEach(b => {
+      b.classList.remove('up', 'squashed');
+      b.dataset.active = 'false';
+    });
+
+    let line;
+    if (score >= 15) line = `${score} باجز! إنت موهبة يا ${playerName}! 🌟 تخيل تعمل ألعاب زي دي بنفسك.`;
+    else if (score >= 8) line = `${score} باجز! شاطر يا ${playerName}! تحب تتعلم تعمل حاجات زي دي؟`;
+    else line = `${score} باجز! مش بطّال يا ${playerName}. تعالى اتعلم تعمل ألعاب أحلى من دي!`;
+    document.getElementById('pitch-text').textContent = line;
+
+    setTimeout(() => show('pitch-screen'), 600);
+  }
+
+  // ---------------- NO BUTTON — INFINITE DODGE ----------------
+  const noBtn = document.getElementById('no-btn');
+  const dodgeMessages = ['لأ!', 'إلحقني!', 'مش هتقدر!', 'يلا بقى!', 'قول أيوه!', 'بلاش عند!', 'حاول تاني!', 'إنت فين؟', 'مش هنا!', 'هههه', 'بعيد عنك!', 'تعبت؟'];
+  let msgIndex = 0;
+
+  function dodge() {
+    const card = noBtn.closest('.pitch-card');
+    const cardRect = card.getBoundingClientRect();
+    const btnRect = noBtn.getBoundingClientRect();
+
+    const maxX = cardRect.width - btnRect.width - 30;
+    const maxY = cardRect.height - btnRect.height - 30;
+
+    const newX = (Math.random() * maxX) - (maxX / 2);
+    const newY = (Math.random() * (maxY * 0.7)) - (maxY * 0.35);
+    const rot = Math.random() * 40 - 20;
+
+    noBtn.style.transform = `translate(${newX}px, ${newY}px) rotate(${rot}deg)`;
+    noBtn.textContent = dodgeMessages[msgIndex % dodgeMessages.length];
+    msgIndex++;
+  }
+
+  // Dodge only on actual press/tap — since this is mobile-first, no hover dodging.
+  // We use touchstart (mobile) and mousedown (desktop) — both BEFORE click can fire, so the click never lands.
+  noBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    dodge();
+  }, { passive: false });
+  noBtn.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    dodge();
+  });
+  // Block any click that somehow gets through (e.g. keyboard Enter while focused)
+  noBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    dodge();
+  });
+
+  function goCelebrate() {
+    document.getElementById('celebrate-title').textContent = `أهلاً بيك يا ${playerName}!`;
+    show('celebrate-screen');
+    confettiBurst();
+  }
+
+  function confettiBurst() {
+    const colors = ['#ff2d87', '#ffd23f', '#00e5ff', '#6bff5c', '#ff8c42'];
+    for (let i = 0; i < 80; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.top = '-20px';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.transform = `rotate(${Math.random() * 360}deg)`;
+      c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      document.body.appendChild(c);
+      const fall = 2000 + Math.random() * 2000;
+      const drift = (Math.random() - 0.5) * 200;
+      c.animate([
+        { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+        { transform: `translate(${drift}px, 110vh) rotate(${720 + Math.random() * 360}deg)`, opacity: 0 }
+      ], { duration: fall, easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' });
+      setTimeout(() => c.remove(), fall);
+    }
+  }
+
+  // ---------------- CAROUSEL ----------------
+  let currentSlide = 0;
+  const totalSlides = 4;
+
+  function renderDots() {
+    const dotsEl = document.getElementById('dots');
+    dotsEl.innerHTML = '';
+    for (let i = 0; i < totalSlides; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i === currentSlide ? ' active' : '');
+      d.onclick = () => { currentSlide = i; updateSlides(); };
+      dotsEl.appendChild(d);
+    }
+  }
+
+  function updateSlides() {
+    document.getElementById('slides').style.transform = `translateX(-${currentSlide * 100}%)`;
+    renderDots();
+  }
+
+  function moveSlide(dir) {
+    currentSlide = (currentSlide + dir + totalSlides) % totalSlides;
+    updateSlides();
+  }
+
+  renderDots();
+
+  setInterval(() => {
+    if (document.getElementById('celebrate-screen').classList.contains('active')) {
+      moveSlide(1);
+    }
+  }, 4500);
+
+  function resetAll() {
+    document.getElementById('name-input').value = '';
+    msgIndex = 0;
+    noBtn.style.transform = '';
+    noBtn.textContent = 'لأ شكراً';
+    currentSlide = 0;
+    updateSlides();
+    show('welcome-screen');
+  }
+</script>
+</body>
+</html>
